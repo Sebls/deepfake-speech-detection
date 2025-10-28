@@ -2,3 +2,4 @@ venv/
 MLAAD/
 stt_tts_dataset/
 dataset/
+.DS_Store
