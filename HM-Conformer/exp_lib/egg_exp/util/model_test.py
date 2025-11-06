@@ -1,5 +1,6 @@
 import torch
 import torch.nn.functional as F
+import numpy as np
 
 from sklearn import metrics
 from scipy.optimize import brentq
@@ -9,7 +10,44 @@ import torch.distributed as dist
 
 from .ddp_util import all_gather
 
+def _flatten_labels(labels):
+    """Flatten labels to ensure they're a 1D list of Python scalars.
+    
+    This handles cases where labels might be nested lists or contain
+    numpy arrays/tensors after all_gather in DDP.
+    """
+    flattened = []
+    for label in labels:
+        if isinstance(label, (list, tuple)):
+            # If it's a nested structure, recursively flatten
+            flattened.extend(_flatten_labels(label))
+        elif isinstance(label, np.ndarray):
+            # Convert numpy array to list and flatten
+            if label.ndim == 0:
+                flattened.append(int(label.item()))
+            else:
+                flattened.extend([int(x) for x in label.flatten()])
+        elif isinstance(label, torch.Tensor):
+            # Convert tensor to Python scalar
+            if label.numel() == 1:
+                flattened.append(int(label.item()))
+            else:
+                # Multi-element tensor, flatten it
+                flattened.extend([int(x.item()) for x in label.flatten()])
+        else:
+            # Already a scalar, convert to int
+            flattened.append(int(label))
+    return flattened
+
 def calculate_EER(scores, labels):
+    # Ensure labels are a flat list of integers
+    labels = _flatten_labels(labels) if isinstance(labels, list) else labels
+    scores = _flatten_labels(scores) if isinstance(scores, list) else scores
+    
+    # Convert to numpy arrays for sklearn
+    labels = np.array(labels, dtype=np.int32)
+    scores = np.array(scores, dtype=np.float64)
+    
     fpr, tpr, _ = metrics.roc_curve(labels, scores, pos_label=1)
     eer = brentq(lambda x: 1. - x - interp1d(fpr, tpr)(x), 0., 1.)
     return eer * 100
