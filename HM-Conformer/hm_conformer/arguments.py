@@ -10,7 +10,7 @@ def get_args():
     """
     system_args = {
         # expeirment info
-        'project'       : 'ASVspoof2023',
+        'project'       : 'Multilingual Test 15k',
         'name'          : 'HM-Conformer',
         'tags'          : [],
         'description'   : '',
@@ -35,9 +35,9 @@ def get_args():
         # 'labels_path'   : '/Users/usuario/Documents/github/deepfake-speech-detection/dataset_audios/labels.json',
         # 'dataset_root'  : '/Users/usuario/Documents/github/deepfake-speech-detection/dataset_audios',
         # For Docker usage, uncomment and use these paths instead:
-        'path_train'    : '/dataset_audios',
-        'labels_path'   : '/dataset_audios/labels.json',
-        'dataset_root'  : '/dataset_audios',
+        'path_train'    : '/content/deepfake-speech-detection/HM-Conformer/dataset',
+        'labels_path'   : '/content/deepfake-speech-detection/HM-Conformer/dataset/labels.json',
+        'dataset_root'  : '/content/deepfake-speech-detection/HM-Conformer/dataset',
         'train_split'   : 0.8,
         'val_split'     : 0.1,
         'test_split'    : 0.1,
@@ -48,7 +48,7 @@ def get_args():
 
         # others
         'num_workers': 4,
-        'usable_gpu': '', # ex) '0,1'
+        'usable_gpu': '0', # ex) '0,1'
     }
 
     experiment_args = {
