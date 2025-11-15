@@ -171,22 +171,15 @@ def run(process_id, args, experiment_args):
         criterions.append(criterion)
     
     # set framework
-    if augmentation != None:
-        framework = egg_exp.framework.DeepfakeDetectionFramework_DA_multiloss(
-            augmentation=augmentation,
-            preprocessing=preprocessing,
-            frontend=frontend,
-            backend=backends,
-            loss=criterions,
-            loss_weight=args['loss_weight'],
-        )
-    else:
-        framework = egg_exp.framework.DeepfakeDetectionFramework(
-            preprocessing=preprocessing,
-            frontend=frontend,
-            backend=backend,
-            loss=criterion,
-        )
+    # Always use DeepfakeDetectionFramework_DA_multiloss (it handles None augmentation)
+    framework = egg_exp.framework.DeepfakeDetectionFramework_DA_multiloss(
+        augmentation=augmentation,
+        preprocessing=preprocessing,
+        frontend=frontend,
+        backend=backends,
+        loss=criterions,
+        loss_weight=args['loss_weight'],
+    )
     framework.use_distributed_data_parallel(f'cuda:{process_id}', True)
 
     # optimizer

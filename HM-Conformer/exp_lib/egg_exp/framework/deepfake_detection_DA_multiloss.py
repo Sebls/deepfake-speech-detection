@@ -17,7 +17,8 @@ class DeepfakeDetectionFramework_DA_multiloss(Framework):
     def __call__(self, x, label=None, all_loss=False):
         # pre_processing
         with torch.set_grad_enabled(False):
-            x = self.augmentation(x)
+            if self.augmentation is not None:
+                x = self.augmentation(x)
         x = self.preprocessing(x)
 
         # feed forward
