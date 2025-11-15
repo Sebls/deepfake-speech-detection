@@ -111,6 +111,21 @@ def run(process_id, args, experiment_args):
         drop_last=True
     )
     
+    # Create validation set (using val_split from MultilingualDataset)
+    val_set = data_processing.TestSet(
+        multilingual_dataset.val_set,
+        args['test_crop_size']
+    )
+    val_sampler = DistributedSampler(val_set, shuffle=False)
+    val_loader = DataLoader(
+        val_set,
+        num_workers=args['num_workers'],
+        batch_size=args['batch_size'],
+        pin_memory=True,
+        sampler=val_sampler,
+        drop_last=False
+    )
+    
     # Create test set (using test_split from MultilingualDataset)
     test_set_DF = data_processing.TestSet(
         multilingual_dataset.test_set,
@@ -217,6 +232,13 @@ def run(process_id, args, experiment_args):
             # train
             train_sampler.set_epoch(epoch)
             train.train(epoch, framework, optimizer, train_loader, logger)
+
+            # validate (compute validation loss)
+            val_loss, val_loss_list = train.validate(framework, val_loader)
+            if logger is not None:
+                logger.log_metric('ValLoss', val_loss, epoch)
+                for i in range(5):
+                    logger.log_metric(f'ValLoss{i}', val_loss_list[i], epoch)
 
             # test_DF
             if epoch % 5 == 0:

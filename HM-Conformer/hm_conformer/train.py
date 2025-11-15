@@ -50,6 +50,36 @@ def train(epoch, framework, optimizer, loader, logger):
 
     _synchronize()
 
+def validate(framework, loader):
+    """Compute validation loss without backpropagation."""
+    framework.eval()
+    
+    count = 0
+    loss_sum = 0
+    loss_sum_list = [0]*5
+    
+    with torch.no_grad():
+        for x, label in loader:
+            # to GPU
+            x = x.to(torch.float32).to(framework.device)
+            label = label.to(framework.device)
+            
+            # feed forward (no backpropagation)
+            _, loss, loss_embs = framework(x, label)
+            
+            # accumulate losses
+            count += 1
+            loss_sum += loss.item()
+            for i in range(5):
+                loss_sum_list[i] += loss_embs[i].item()
+    
+    # Compute average losses
+    avg_loss = loss_sum / count if count > 0 else 0
+    avg_loss_list = [loss_sum_list[i] / count if count > 0 else 0 for i in range(5)]
+    
+    _synchronize()
+    return avg_loss, avg_loss_list
+
 def test(framework, loader):
     # enrollment
     eer = df_test(framework, loader, run_on_ddp=True, get_scores=False)

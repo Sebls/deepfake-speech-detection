@@ -38,24 +38,28 @@ def get_args():
         'path_train'    : '/content/deepfake-speech-detection/HM-Conformer/dataset',
         'labels_path'   : '/content/deepfake-speech-detection/HM-Conformer/dataset/labels.json',
         'dataset_root'  : '/content/deepfake-speech-detection/HM-Conformer/dataset',
-        'train_split'   : 0.8,
-        'val_split'     : 0.1,
-        'test_split'    : 0.1,
+        #'train_split'   : 0.8,
+        #'val_split'     : 0.1,
+        #'test_split'    : 0.1,
+        'train_split'   : 0,
+        'val_split'     : 0,
+        'test_split'    : 1,
         
         # Common augmentation paths
         'path_musan'    : '/content/deepfake-speech-detection/HM-Conformer/data/musan',
         'path_rir'      : '/content/deepfake-speech-detection/HM-Conformer/data/RIRS_NOISES/simulated_rirs',
 
         # others
-        'num_workers': 4,
+        'num_workers': 2,  # Reduced for Colab (0-2 recommended)
         'usable_gpu': '0', # ex) '0,1'
     }
 
     experiment_args = {
-        'TEST'              : False,  # Set to False for training, True for inference only
+        'TEST'              : True,  # Set to True for testing/inference only
         # experiment
         'epoch'             : 100,
-        'batch_size'        : 240,
+        # 'batch_size'        : 240,
+        'batch_size'        : 32,  # Small batch size for Colab GPU memory
         'rand_seed'         : 1,
         
         # frontend model
@@ -97,7 +101,7 @@ def get_args():
         
         # data augmentation
         # 1. when Reading file
-        'DA_codec_speed'    : True,         # codec: 'aac', 'flac', 'm4a', 'mp3', 'ogg', 'wav', 'wav', 'wma', speed: 'slow', 'fast'
+        'DA_codec_speed'    : False,         # codec: 'aac', 'flac', 'm4a', 'mp3', 'ogg', 'wav', 'wav', 'wma', speed: 'slow', 'fast'
         # 2. when __getitem__
         'DA_p'              : 0.5,
         'DA_list'           : [], # 'ACN': add_coloured_noise, 'FQM': frq_masking, 'MUS': MUSAN, 'RIR': RIR
@@ -106,7 +110,8 @@ def get_args():
             'RIR': {'path': system_args['path_rir']}  
         },
         # 3. when processing WaveformAugmentation which is in Framework
-        'DA_wav_aug_list'   : ['ACN'], 
+        #'DA_wav_aug_list'   : ['ACN'], 
+        'DA_wav_aug_list'   : [],
             # 'ACN': add_colored_noise, 'GAN': gain, 'HPF': high pass filter, 'LPF': low pass filter
             # if use 'HPF' or 'LPF' training speed will be slow
         'DA_wav_aug_params' :  {
@@ -118,7 +123,8 @@ def get_args():
         },
         # 4. when extracting acoustic_feature
         'DA_frq_p'          : 1,
-        'DA_frq_mask'       : True,
+        #'DA_frq_mask'       : True,
+        'DA_frq_mask'       : False,
         'DA_frq_mask_max'   : 20,
         
         # learning rate
