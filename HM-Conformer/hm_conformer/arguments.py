@@ -58,8 +58,7 @@ def get_args():
     experiment_args = {
         'TEST'              : False,  # Set to True for testing/inference only
         # experiment
-        #'epoch'             : 200,
-        'epoch'             : 5,
+        'epoch'             : 200,
         'batch_size'        : 240,  # Small batch size for Colab GPU memory
         'rand_seed'         : 1,
         
